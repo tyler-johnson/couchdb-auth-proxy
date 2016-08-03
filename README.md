@@ -31,7 +31,7 @@ To begin, ensure proxy authentication is enabled on your CouchDB server. This is
 authentication_handlers = {couch_httpd_oauth, oauth_authentication_handler}, {couch_httpd_auth, cookie_authentication_handler}, {couch_httpd_auth, proxy_authentication_handler}, {couch_httpd_auth, default_authentication_handler}
 ```
 
-This library returns an Express/Connect middleware function. It accepts two arguments: a user context method and some options.
+This library returns an Express/Connect middleware function. It accepts two arguments: a user context method and some options. Here is an example proxy that makes every request a super admin request.
 
 ```js
 const app = express();
@@ -47,19 +47,34 @@ app.use(couchdbProxy(function(req) {
 
 In CouchDB, users are represented with a user context object. These are simply objects with `name` and `roles` fields. Usually this information comes from a document in the `_users` database, however we can also generate it from other means.
 
-This library allows you to complete asynchronous authentication lookup, return a promise or pass `next` as the third argument. If you do use the `next()` callback, you absolutely must call it, or the request will never complete.
+This library allows you to complete asynchronous authentication lookups. The simple version is to return a Promise.
 
 ```js
-app.use(couchdbProxy(function(req, res, next) {
+app.use(couchdbProxy(function(req, res) {
+  const token = req.get("Authorization");
+
+  return validateToken(token).then(function(user) {
+    return {
+      name: user.name,
+      roles: []
+    };
+  });
+}));
+```
+
+Of course, you can also go with the more traditional `next` style callback that Express uses. If you do use the `next()` callback, you absolutely must call it, or the request will never complete.
+
+```js
+app.use(couchdbProxy(function(req, res) {
   const token = req.get("Authorization");
 
   validateToken(token, function(err, user) {
     if (err) return next(err);
 
-    return {
+    next(null, {
       name: user.name,
       roles: []
-    };
+    });
   });
 }));
 ```
@@ -70,7 +85,7 @@ app.use(couchdbProxy(function(req, res, next) {
 
 - `userCtxFn` (Function, *required*) - Method called on every request, with the request `req` and response `res` as arguments. This method should return a plain object with `name` and `roles` fields, representing the authenticated user. To run an async task, return a promise or pass a third argument `next` for a callback.
 - `options` (Object) - Options to configure the proxy.
-  - `options.target` (String) - The URL of the CouchDB server to proxy to. This server must have [proxy authentication enabled](http://docs.couchdb.org/en/1.6.1/api/server/authn.html#proxy-authentication).
+  - `options.target` (String) - The URL of the CouchDB server to proxy to. This server must have [proxy authentication enabled](http://docs.couchdb.org/en/1.6.1/api/server/authn.html#proxy-authentication). Defaults to `http://localhost:5984`.
   - `options.secret` (String) - The [CouchDB secret](http://docs.couchdb.org/en/1.6.1/config/auth.html#couch_httpd_auth/secret) used to sign proxy tokens and cookies. This is very much an optional parameter and in general there is very little reason to use a secret. This is only absolutely required if `couch_httpd_auth/proxy_use_secret` is enabled on CouchDB.
   - `options.via` (String) - The name of the proxy to add to the `Via` header. This is so consumers of the HTTP API can tell that the request was directed through a proxy. This is optional and the `Via` header will be excluded when not provided.
   - `options.headerFields` (Object) - A map of custom header fields to use for the proxy. This should match what is declared in CouchDB `couch_httpd_auth` configuration, under `x_auth_roles`, `x_auth_token`, and `x_auth_username`. This is the default map:
