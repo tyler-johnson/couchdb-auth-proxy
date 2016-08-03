@@ -1,0 +1,39 @@
+{
+  "name": "couchdb-auth-proxy",
+  "version": "0.0.0-edge",
+  "description": "An HTTP reverse proxy server for easy Couchdb proxy authentication",
+  "author": "Tyler Johnson <tyler@tylerjohnson.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tyler-johnson/couchdb-auth-proxy.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint src/ test/",
+    "build": "make clean && make",
+    "test": "make test",
+    "prepublish": "npm run build",
+    "autorelease": "autorelease pre && npm publish && autorelease post"
+  },
+  "dependencies": {
+    "http-proxy": "^1.14.0",
+    "transformer-proxy": "^0.3.3"
+  },
+  "devDependencies": {
+    "autorelease": "^1.7.1",
+    "autorelease-github": "^1.2.0",
+    "autorelease-travis": "^1.2.1",
+    "babel-eslint": "^6.1.2",
+    "babel-plugin-external-helpers": "^6.8.0",
+    "babel-plugin-transform-async-to-generator": "^6.8.0",
+    "babel-plugin-transform-es2015-destructuring": "^6.9.0",
+    "babel-plugin-transform-es2015-parameters": "^6.11.4",
+    "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "eslint": "^3.2.2",
+    "rollup": "^0.34.3",
+    "rollup-plugin-babel": "^2.6.1",
+    "rollup-plugin-json": "^2.0.1"
+  },
+  "keywords": [],
+  "license": "MIT"
+}
