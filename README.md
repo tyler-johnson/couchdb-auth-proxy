@@ -65,7 +65,7 @@ app.use(couchdbProxy(function(req, res) {
 Of course, you can also go with the more traditional `next` style callback that Express uses. If you do use the `next()` callback, you absolutely must call it, or the request will never complete.
 
 ```js
-app.use(couchdbProxy(function(req, res) {
+app.use(couchdbProxy(function(req, res, next) {
   const token = req.get("Authorization");
 
   validateToken(token, function(err, user) {
