@@ -11,7 +11,6 @@
   "scripts": {
     "lint": "eslint src/ test/",
     "build": "make clean && make",
-    "test": "make test",
     "prepublish": "npm run build",
     "autorelease": "autorelease pre && npm publish && autorelease post"
   },
