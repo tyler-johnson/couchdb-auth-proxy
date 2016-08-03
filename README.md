@@ -47,19 +47,34 @@ app.use(couchdbProxy(function(req) {
 
 In CouchDB, users are represented with a user context object. These are simply objects with `name` and `roles` fields. Usually this information comes from a document in the `_users` database, however we can also generate it from other means.
 
-This library allows you to complete asynchronous authentication lookup, return a promise or pass `next` as the third argument. If you do use the `next()` callback, you absolutely must call it, or the request will never complete.
+This library allows you to complete asynchronous authentication lookups. The simple version to return a Promise.
 
 ```js
-app.use(couchdbProxy(function(req, res, next) {
+app.use(couchdbProxy(function(req, res) {
+  const token = req.get("Authorization");
+
+  return validateToken(token).then(function(user) {
+    return {
+      name: user.name,
+      roles: []
+    };
+  });
+}));
+```
+
+Of course, you can also go with the more traditional `next` style callback that Express uses. If you do use the `next()` callback, you absolutely must call it, or the request will never complete.
+
+```js
+app.use(couchdbProxy(function(req, res) {
   const token = req.get("Authorization");
 
   validateToken(token, function(err, user) {
     if (err) return next(err);
 
-    return {
+    next(null, {
       name: user.name,
       roles: []
-    };
+    });
   });
 }));
 ```
