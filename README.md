@@ -31,7 +31,7 @@ To begin, ensure proxy authentication is enabled on your CouchDB server. This is
 authentication_handlers = {couch_httpd_oauth, oauth_authentication_handler}, {couch_httpd_auth, cookie_authentication_handler}, {couch_httpd_auth, proxy_authentication_handler}, {couch_httpd_auth, default_authentication_handler}
 ```
 
-This library returns an Express/Connect middleware function. It accepts two arguments: a user context method and some options.
+This library returns an Express/Connect middleware function. It accepts two arguments: a user context method and some options. Here is an example proxy that makes every request a super admin request.
 
 ```js
 const app = express();
@@ -47,7 +47,7 @@ app.use(couchdbProxy(function(req) {
 
 In CouchDB, users are represented with a user context object. These are simply objects with `name` and `roles` fields. Usually this information comes from a document in the `_users` database, however we can also generate it from other means.
 
-This library allows you to complete asynchronous authentication lookups. The simple version to return a Promise.
+This library allows you to complete asynchronous authentication lookups. The simple version is to return a Promise.
 
 ```js
 app.use(couchdbProxy(function(req, res) {
