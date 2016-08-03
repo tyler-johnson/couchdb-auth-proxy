@@ -35,5 +35,8 @@
     "rollup-plugin-json": "^2.0.1"
   },
   "keywords": [],
-  "license": "MIT"
+  "license": "MIT",
+  "files": [
+    "index.js"
+  ]
 }
