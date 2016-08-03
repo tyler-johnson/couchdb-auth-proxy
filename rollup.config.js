@@ -7,15 +7,7 @@ export default {
 	plugins: [
 		json(),
 		babel({
-			exclude: [ "node_modules/**" ],
-			include: [ "src/**" ],
-			plugins: [
-				"external-helpers",
-				"transform-es2015-destructuring",
-				"transform-es2015-parameters",
-				"transform-async-to-generator",
-				"transform-object-rest-spread"
-			]
+			exclude: [ "node_modules/**" ]
 		})
 	]
 };

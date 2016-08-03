@@ -1,4 +1,6 @@
 {
+  "branch": "master",
+  "preset": "angular",
   "pre": {
     "verify": [
       "autorelease-github/verify",
