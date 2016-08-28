@@ -1,7 +1,7 @@
 {
   "name": "couchdb-auth-proxy",
   "version": "0.0.0-edge",
-  "description": "An HTTP reverse proxy server for easy Couchdb proxy authentication",
+  "description": "An HTTP reverse proxy library for quick and dirty Couchdb proxy authentication",
   "author": "Tyler Johnson <tyler@tylerjohnson.me>",
   "repository": {
     "type": "git",
