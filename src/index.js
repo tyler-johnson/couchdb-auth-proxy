@@ -61,7 +61,8 @@ export default function(fn, opts={}) {
 
 			proxy.web(req, res, { target });
 		} catch(e) {
-			next(e);
+			if (next) next(e);
+			else throw e;
 		}
 	};
 }
