@@ -96,3 +96,4 @@ app.use(couchdbProxy(function(req, res, next) {
       "token": "X-Auth-CouchDB-Token"
     }
     ```
+  - `options.info` (Object) - Some JSON serializable value that will be injected into the CouchDB's root info document response.

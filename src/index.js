@@ -1,14 +1,8 @@
-import crypto from "crypto";
+import {createHmac} from "crypto";
 import {name,version} from "../package.json";
 import {parse} from "url";
 import httpProxy from "http-proxy";
 import transformerProxy from "transformer-proxy";
-
-const injectProxyInfo = transformerProxy(function(data) {
-	const body = JSON.parse(data);
-	body.proxy = {name,version};
-	return JSON.stringify(body);
-});
 
 export default function(fn, opts={}) {
 	if (typeof fn === "object") [opts,fn] = [fn,opts];
@@ -17,7 +11,8 @@ export default function(fn, opts={}) {
 		via,
 		secret,
 		target="http://localhost:5984",
-		headerFields = {}
+		headerFields = {},
+		info = { name, version }
 	} = opts;
 
 	headerFields = Object.assign({
@@ -26,12 +21,18 @@ export default function(fn, opts={}) {
 		token: "X-Auth-CouchDB-Token"
 	}, headerFields);
 
+	const injectProxyInfo = info ? transformerProxy(function(data) {
+		const body = JSON.parse(data);
+		body.proxy = info;
+		return JSON.stringify(body);
+	}) : null;
+
 	const proxy = httpProxy.createProxyServer({});
 
 	return async function(req, res, next) {
 		try {
 			// hijack the root response and inject proxy information
-			if (parse(req.url).pathname === "/") {
+			if (injectProxyInfo && parse(req.url).pathname === "/") {
 				await confusedAsync(injectProxyInfo, null, [req, res]);
 			}
 
@@ -67,7 +68,7 @@ export default function(fn, opts={}) {
 
 // couchdb proxy signed token
 function signRequest(user, secret) {
-	return crypto.createHmac("sha1", secret).update(user).digest("hex");
+	return createHmac("sha1", secret).update(user).digest("hex");
 }
 
 // for methods that we don't know if they are callback or promise async
