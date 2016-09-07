@@ -22,12 +22,18 @@ export default function(fn, opts={}) {
 	}, headerFields);
 
 	const injectProxyInfo = info ? transformerProxy(function(data) {
-		const body = JSON.parse(data);
-		body.proxy = info;
-		return JSON.stringify(body);
+		if (Buffer.isBuffer(data)) data = data.toString("utf-8");
+
+		try {
+			const body = JSON.parse(data);
+			body.proxy = info;
+			return JSON.stringify(body);
+		} catch(e) {
+			return data;
+		}
 	}) : null;
 
-	const proxy = httpProxy.createProxyServer({});
+	const proxy = httpProxy.createProxyServer({ target });
 
 	return async function(req, res, next) {
 		try {
@@ -59,7 +65,7 @@ export default function(fn, opts={}) {
 				};
 			}
 
-			proxy.web(req, res, { target });
+			proxy.web(req, res);
 		} catch(e) {
 			if (next) next(e);
 			else throw e;
