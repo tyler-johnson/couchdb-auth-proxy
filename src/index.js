@@ -35,6 +35,12 @@ export default function(fn, opts={}) {
 
 	const proxy = httpProxy.createProxyServer({ target });
 
+	proxy.on("proxyRes", function(proxyRes, req, res) {
+		const existing = res.getHeader("Via");
+		const viaheader = `${existing ? existing + ", " : ""}${req.httpVersion} ${via} (${name}/${version})`;
+		res.setHeader("Via", viaheader);
+	});
+
 	return async function(req, res, next) {
 		try {
 			// hijack the root response and inject proxy information
@@ -49,20 +55,6 @@ export default function(fn, opts={}) {
 				req.headers[headerFields.username] = name;
 				req.headers[headerFields.roles] = Array.isArray(ctx.roles) ? ctx.roles.join(",") : "";
 				if (secret) req.headers[headerFields.token] = signRequest(name, secret);
-			}
-
-			// attach Via header on response
-			// do this last in case there was an error
-			if (via) {
-				const writeHead = res.writeHead;
-				res.writeHead = function(code, headers) {
-					const existing = res.getHeader("Via");
-					const viaheader = `${existing ? existing + ", " : ""}${req.httpVersion} ${via} (${name}/${version})`;
-					res.setHeader("Via", viaheader);
-					if (headers) headers["Via"] = viaheader;
-
-					return writeHead.apply(res, arguments);
-				};
 			}
 
 			proxy.web(req, res);
