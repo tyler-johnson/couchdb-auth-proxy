@@ -51,10 +51,10 @@ export default function(fn, opts={}) {
 			// inject couchdb proxy headers into request
 			const ctx = await confusedAsync(fn, null, [ req, res ]);
 			if (ctx != null) {
-				const name = typeof ctx.name === "string" ? ctx.name : "";
-				req.headers[headerFields.username] = name;
+				const n = typeof ctx.name === "string" ? ctx.name : "";
+				req.headers[headerFields.username] = n;
 				req.headers[headerFields.roles] = Array.isArray(ctx.roles) ? ctx.roles.join(",") : "";
-				if (secret) req.headers[headerFields.token] = signRequest(name, secret);
+				if (secret) req.headers[headerFields.token] = signRequest(n, secret);
 			}
 
 			proxy.web(req, res);
