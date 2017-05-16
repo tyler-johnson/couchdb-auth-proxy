@@ -4,7 +4,7 @@ import {parse} from "url";
 import httpProxy from "http-proxy";
 import transformerProxy from "transformer-proxy";
 
-export default function(fn, opts={}) {
+export default function couchdbAuthProxy(fn, opts={}) {
 	if (typeof fn === "object") [opts,fn] = [fn,opts];
 
 	let {
@@ -51,10 +51,12 @@ export default function(fn, opts={}) {
 			// inject couchdb proxy headers into request
 			const ctx = await confusedAsync(fn, null, [ req, res ]);
 			if (ctx != null) {
+				const { username, roles, token } = headerFields;
+				cleanHeaders(req, [ username, roles, token ]);
 				const n = typeof ctx.name === "string" ? ctx.name : "";
-				req.headers[headerFields.username] = n;
-				req.headers[headerFields.roles] = Array.isArray(ctx.roles) ? ctx.roles.join(",") : "";
-				if (secret) req.headers[headerFields.token] = signRequest(n, secret);
+				req.headers[username] = n;
+				req.headers[roles] = Array.isArray(ctx.roles) ? ctx.roles.join(",") : "";
+				if (secret) req.headers[token] = sign(n, secret);
 			}
 
 			proxy.web(req, res);
@@ -66,9 +68,9 @@ export default function(fn, opts={}) {
 }
 
 // couchdb proxy signed token
-function signRequest(user, secret) {
+const sign = couchdbAuthProxy.sign = function(user, secret) {
 	return createHmac("sha1", secret).update(user).digest("hex");
-}
+};
 
 // for methods that we don't know if they are callback or promise async
 function confusedAsync(fn, ctx, args=[]) {
@@ -82,4 +84,14 @@ function confusedAsync(fn, ctx, args=[]) {
 	} else {
 		return Promise.resolve(fn.apply(ctx, args));
 	}
+}
+
+// removes a list of headers from a request
+// accounts for Node.js lowercase headers
+// https://github.com/tyler-johnson/couchdb-auth-proxy/issues/7
+function cleanHeaders(req, headers) {
+	headers.forEach(header => {
+		delete req.headers[header];
+		delete req.headers[header.toLowerCase()];
+	});
 }

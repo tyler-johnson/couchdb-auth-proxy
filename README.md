@@ -1,6 +1,6 @@
-# couchdb-auth-proxy
+# CouchDB Auth Proxy
 
-[![npm](https://img.shields.io/npm/v/couchdb-auth-proxy.svg)](https://www.npmjs.com/package/couchdb-auth-proxy) [![David](https://img.shields.io/david/tyler-johnson/couchdb-auth-proxy.svg)](https://david-dm.org/tyler-johnson/couchdb-auth-proxy) [![Build Status](https://travis-ci.org/tyler-johnson/couchdb-auth-proxy.svg?branch=master)](https://travis-ci.org/tyler-johnson/couchdb-auth-proxy)
+[![npm](https://img.shields.io/npm/v/couchdb-auth-proxy.svg)](https://www.npmjs.com/package/couchdb-auth-proxy) [![Build Status](https://travis-ci.org/tyler-johnson/couchdb-auth-proxy.svg?branch=master)](https://travis-ci.org/tyler-johnson/couchdb-auth-proxy)
 
 A Node.js HTTP reverse proxy library for quick and dirty CouchDB proxy authentication.
 
@@ -66,7 +66,7 @@ const server = http.createServer(couchdbProxy(function(req, res, next) {
 - `userCtxFn` (Function, *required*) - Method called on every request, with the request `req` and response `res` as arguments. This method should return a plain object with `name` and `roles` fields, representing the authenticated user. To run an async task, return a promise or pass a third argument `next` for a callback.
 - `options` (Object) - Options to configure the proxy.
   - `options.target` (String) - The URL of the CouchDB server to proxy to. This server must have [proxy authentication enabled](http://docs.couchdb.org/en/1.6.1/api/server/authn.html#proxy-authentication). Defaults to `http://localhost:5984`.
-  - `options.secret` (String) - The [CouchDB secret](http://docs.couchdb.org/en/1.6.1/config/auth.html#couch_httpd_auth/secret) used to sign proxy tokens and cookies. This is very much an optional parameter and in general there is very little reason to use a secret. This is only absolutely required if `couch_httpd_auth/proxy_use_secret` is enabled on CouchDB.
+  - `options.secret` (String) - The [CouchDB secret](http://docs.couchdb.org/en/1.6.1/config/auth.html#couch_httpd_auth/secret) used to sign proxy tokens and cookies. This is only required if `couch_httpd_auth/proxy_use_secret` is enabled on CouchDB (which is recommended).
   - `options.via` (String) - The name of the proxy to add to the `Via` header. This is so consumers of the HTTP API can tell that the request was directed through a proxy. This is optional and the `Via` header will be excluded when not provided.
   - `options.headerFields` (Object) - A map of custom header fields to use for the proxy. This should match what is declared in CouchDB `couch_httpd_auth` configuration, under `x_auth_roles`, `x_auth_token`, and `x_auth_username`. This is the default map:
   ```json

@@ -11,6 +11,7 @@
   "scripts": {
     "lint": "eslint src/ test/",
     "build": "make clean && make",
+    "test": "make test.js && node test.js",
     "prepublish": "npm run build",
     "autorelease": "autorelease pre && npm publish && autorelease post"
   },
@@ -29,9 +30,13 @@
     "babel-plugin-transform-es2015-parameters": "^6.11.4",
     "babel-plugin-transform-object-rest-spread": "^6.8.0",
     "eslint": "^3.2.2",
+    "express": "^4.15.2",
     "rollup": "^0.34.3",
     "rollup-plugin-babel": "^2.6.1",
-    "rollup-plugin-json": "^2.0.1"
+    "rollup-plugin-json": "^2.0.1",
+    "supertest": "^3.0.0",
+    "tape": "^4.6.3",
+    "tape-promise": "^2.0.1"
   },
   "keywords": [],
   "license": "MIT",
