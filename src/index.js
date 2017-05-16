@@ -4,7 +4,7 @@ import {parse} from "url";
 import httpProxy from "http-proxy";
 import transformerProxy from "transformer-proxy";
 
-export default function(fn, opts={}) {
+export default function couchdbAuthProxy(fn, opts={}) {
 	if (typeof fn === "object") [opts,fn] = [fn,opts];
 
 	let {
@@ -54,7 +54,7 @@ export default function(fn, opts={}) {
 				const n = typeof ctx.name === "string" ? ctx.name : "";
 				req.headers[headerFields.username] = n;
 				req.headers[headerFields.roles] = Array.isArray(ctx.roles) ? ctx.roles.join(",") : "";
-				if (secret) req.headers[headerFields.token] = signRequest(n, secret);
+				if (secret) req.headers[headerFields.token] = sign(n, secret);
 			}
 
 			proxy.web(req, res);
@@ -66,9 +66,9 @@ export default function(fn, opts={}) {
 }
 
 // couchdb proxy signed token
-function signRequest(user, secret) {
+const sign = couchdbAuthProxy.sign = function(user, secret) {
 	return createHmac("sha1", secret).update(user).digest("hex");
-}
+};
 
 // for methods that we don't know if they are callback or promise async
 function confusedAsync(fn, ctx, args=[]) {
