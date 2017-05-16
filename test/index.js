@@ -71,3 +71,30 @@ test("injects proxy info into root response", async function(t, couchdb, target)
   t.equals(body.foo, "bar", "has original json content");
   t.deepEquals(body.proxy, { hello: "world" }, "has custom info contents");
 });
+
+test("removes original session headers", async function(t, couchdb, target) {
+  t.plan(3);
+
+  couchdb.get("/", (req, res) => {
+    t.equals(req.get("X-Auth-CouchDB-UserName"), "test", "proxied correct user name");
+    t.equals(req.get("X-Auth-CouchDB-Roles"), "testrole1,testrole2", "proxied correct roles");
+    res.json({ foo: "bar" });
+  });
+
+  const proxy = couchdbProxy(function() {
+    return {
+      name: "test",
+      roles: [ "testrole1", "testrole2" ]
+    };
+  }, {
+    target
+  });
+
+  const {body} = await request(proxy)
+    .get("/")
+    .set("X-Auth-CouchDB-UserName", "previous")
+    .set("X-Auth-CouchDB-Roles", "prevrole1,prevrole2")
+    .expect(200);
+
+  t.equals(body.foo, "bar", "has original json content");
+});
