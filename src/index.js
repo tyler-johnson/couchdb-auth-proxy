@@ -86,6 +86,10 @@ function confusedAsync(fn, ctx, args=[]) {
 	}
 }
 
+
+// removes a list of headers from a request
+// accounts for Node.js lowercase headers
+// https://github.com/tyler-johnson/couchdb-auth-proxy/issues/7
 function cleanHeaders(req, headers) {
 	headers.forEach(header => {
 		delete req.headers[header];
