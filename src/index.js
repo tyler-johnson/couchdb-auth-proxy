@@ -51,6 +51,7 @@ export default function couchdbAuthProxy(fn, opts={}) {
 			// inject couchdb proxy headers into request
 			const ctx = await confusedAsync(fn, null, [ req, res ]);
 			if (ctx != null) {
+				cleanHeaders(req, Object.values(headerFields));
 				const n = typeof ctx.name === "string" ? ctx.name : "";
 				req.headers[headerFields.username] = n;
 				req.headers[headerFields.roles] = Array.isArray(ctx.roles) ? ctx.roles.join(",") : "";
@@ -82,4 +83,11 @@ function confusedAsync(fn, ctx, args=[]) {
 	} else {
 		return Promise.resolve(fn.apply(ctx, args));
 	}
+}
+
+function cleanHeaders(req, headers) {
+	headers.forEach(header => {
+		delete req.headers[header];
+		delete req.headers[header.toLowerCase()];
+	});
 }
